@@ -1,7 +1,7 @@
 alias vim="nvim"
 bindkey -v
 # PROMPT='%B%F{33}%*%f%b '
-PROMPT='%B%F{33}%*%f%b '
+PROMPT='%B%F{33}>%f%b '
 # Set up fzf key bindings and fuzzy completion
 source <(fzf --zsh)
 

@@ -1,5 +1,6 @@
 alias vim="nvim"
-bindkey -v
+# bindkey -v
+bindkey -v '^?' backward-delete-char # to backspace when switching to insert mode
 # PROMPT='%B%F{33}%*%f%b '
 PROMPT='%B%F{33}>%f%b '
 # Set up fzf key bindings and fuzzy completion

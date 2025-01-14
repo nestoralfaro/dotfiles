@@ -92,7 +92,17 @@ end)
 
 -- ********************** config *******************************
 prequire("Comment")
-prequire("lualine", { options = { theme = "codedark" } } )
+prequire("lualine", {
+  options = { theme = "codedark" },
+  sections = {
+    lualine_a = {'mode'},
+    lualine_b = {'branch', 'diff', 'diagnostics'},
+    lualine_c = {{'filename', file_status=true, path=2}},
+    lualine_x = {'encoding', 'fileformat', 'filetype'},
+    lualine_y = {'progress'},
+    lualine_z = {'location'}
+  },
+})
 local status, _ = pcall(vim.cmd, "colorscheme vscode")
 if not status then
   print("vscode colorscheme not found.")
@@ -137,25 +147,7 @@ treesitter.setup({
   -- enable autotagging (w/ nvim-ts-autotag plugin)
   autotag = { enable = true },
   -- ensure these language parsers are installed
-  ensure_installed = {
-    "c",
-    "c_sharp",
-    "json",
-    "javascript",
-    "typescript",
-    "tsx",
-    "yaml",
-    "html",
-    "css",
-    "markdown",
-    "markdown_inline",
-    "bash",
-    "lua",
-    "vim",
-    "vimdoc",
-    "dockerfile",
-    "gitignore",
-  },
+  ensure_installed = "all",
   -- Install parsers synchronously (only applied to `ensure_installed`)
   sync_install = false,
   -- Automatically install missing parsers when entering buffer
@@ -235,8 +227,8 @@ lsp.on_attach(function(client, bufnr)
   vim.keymap.set("n", "<C-k>", function() vim.lsp.buf.hover() end, opts)
   vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
   vim.keymap.set("n", "K", function() vim.diagnostic.open_float() end, opts)
-  vim.keymap.set("n", "[d", function() vim.diagnostic.goto_next() end, opts)
-  vim.keymap.set("n", "]d", function() vim.diagnostic.goto_prev() end, opts)
+  vim.keymap.set("n", "[d", function() vim.diagnostic.goto_prev() end, opts)
+  vim.keymap.set("n", "]d", function() vim.diagnostic.goto_next() end, opts)
   vim.keymap.set("n", "<leader>vca", function() vim.lsp.buf.code_action() end, opts)
   vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
   vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)

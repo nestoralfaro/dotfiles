@@ -266,6 +266,7 @@ prequire("ibl")
 **************************************************************
 --]]
 local opt = vim.opt
+vim.g.netrw_bufsettings='noma nomed nu rnu nobl nowrap ro' -- magical spell for relative line numbers in netrw
 opt.guicursor = "n-v-c-i:block"
 -- vim.opt.formatoptions:remove{"c", "r", "o"} -- this only works when `:so`. However, it gets overwritten by C file plugin in Vim (WHY? idk)
 vim.cmd([[autocmd BufEnter * set formatoptions-=cro]]) -- no auto commenting EVER AGAIN

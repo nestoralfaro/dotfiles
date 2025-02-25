@@ -92,6 +92,14 @@ end)
 
 -- ********************** config *******************************
 prequire("Comment")
+
+local tsautotagStatus, tsautotag = pcall(require, "nvim-ts-autotag")
+if not tsautotagStatus then
+  print("nvim-ts-autotag")
+  return
+end
+tsautotag.setup()
+
 prequire("lualine", {
   options = { theme = "codedark" },
   sections = {
@@ -145,7 +153,7 @@ treesitter.setup({
   -- enable indentation
   indent = { enable = true },
   -- enable autotagging (w/ nvim-ts-autotag plugin)
-  autotag = { enable = true },
+  -- autotag = { enable = true },
   -- ensure these language parsers are installed
   ensure_installed = "all",
   -- Install parsers synchronously (only applied to `ensure_installed`)

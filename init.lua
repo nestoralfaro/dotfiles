@@ -1,3 +1,4 @@
+-- ~/.config/nvim/init.lua
 --[[
 **************************************************************
                           plugins
@@ -58,7 +59,7 @@ packer.startup(function(use)
 	-- lsp
 	use {
 		'VonHeikemen/lsp-zero.nvim',
-		branch = 'v1.x',
+		branch = 'v3.x',
 		requires = {
 		-- LSP Support
 		{'neovim/nvim-lspconfig'},
@@ -78,7 +79,7 @@ packer.startup(function(use)
 	}
 	-- auto closing
 	use("windwp/nvim-autopairs") -- autoclose parens, brackets, quotes, etc...
-	use({ "windwp/nvim-ts-autotag", after = "nvim-treesitter" }) -- autoclose tags
+	use("windwp/nvim-ts-autotag") -- autoclose tags
 	-- git
 	use("tpope/vim-fugitive")
 	use("lewis6991/gitsigns.nvim")
@@ -93,12 +94,20 @@ end)
 -- ********************** config *******************************
 prequire("Comment")
 
+-- Setup nvim-ts-autotag
 local tsautotagStatus, tsautotag = pcall(require, "nvim-ts-autotag")
-if not tsautotagStatus then
-  print("nvim-ts-autotag")
-  return
+if tsautotagStatus then
+  tsautotag.setup({
+    opts = {
+      -- Defaults
+      enable_close = true, -- Auto close tags
+      enable_rename = true, -- Auto rename pairs of tags
+      enable_close_on_slash = false -- Auto close on trailing </
+    },
+  })
+else
+  print("nvim-ts-autotag not found - skipping setup. Try running `:PackerClean` & `:PackerSync` and finally `:PackerCompile`")
 end
-tsautotag.setup()
 
 prequire("lualine", {
   options = { theme = "codedark" },
@@ -153,14 +162,17 @@ treesitter.setup({
   -- enable indentation
   indent = { enable = true },
   -- enable autotagging (w/ nvim-ts-autotag plugin)
-  -- autotag = { enable = true },
-  -- ensure these language parsers are installed
-  ensure_installed = "all",
+  autotag = { enable = true },
+  -- ensure these language parsers are installed (specify languages instead of "all")
+  ensure_installed = { 
+    "lua", "vim", "vimdoc", "query", "javascript", "typescript", 
+    "html", "css", "json", "markdown", "bash", "python", "rust" 
+  },
   -- Install parsers synchronously (only applied to `ensure_installed`)
   sync_install = false,
   -- Automatically install missing parsers when entering buffer
   -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-  auto_install = true,
+  auto_install = false,
 })
 -- nvim-cmp
 local cmp_status, cmp = pcall(require, "cmp")
@@ -199,37 +211,12 @@ cmp.setup({
     { name = "path" }, -- file system paths
   }),
 })
--- lsp
-local lsp = require("lsp-zero")
-lsp.preset("recommended")
-lsp.ensure_installed({
-  'ts_ls',
-  'rust_analyzer',
-})
--- Fix Undefined global 'vim'
-lsp.nvim_workspace()
-local cmp_select = { behavior = cmp.SelectBehavior.Select }
-local cmp_mappings = lsp.defaults.cmp_mappings({
-  ['<C-k>'] = cmp.mapping.select_prev_item(cmp_select),
-  ['<C-j>'] = cmp.mapping.select_next_item(cmp_select),
-  ['<C-y>'] = cmp.mapping.confirm({ select = true }),
-  ["<C-Space>"] = cmp.mapping.complete(),
-})
-cmp_mappings['<Tab>'] = nil
-cmp_mappings['<S-Tab>'] = nil
-lsp.setup_nvim_cmp({
-  mapping = cmp_mappings
-})
 
--- Change the Diagnostic symbols in the sign column (gutter)
--- (not in youtube nvim video)
-local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
-for type, icon in pairs(signs) do
-  local hl = "DiagnosticSign" .. type
-  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
-end
+-- LSP Setup (Updated for v3.x)
+local lsp_zero = require('lsp-zero')
 
-lsp.on_attach(function(client, bufnr)
+-- lsp_zero.on_attach is now the way to setup keybindings
+lsp_zero.on_attach(function(client, bufnr)
   local opts = {buffer = bufnr, remap = false}
   vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
   vim.keymap.set("n", "<C-k>", function() vim.lsp.buf.hover() end, opts)
@@ -242,7 +229,27 @@ lsp.on_attach(function(client, bufnr)
   vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
   vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
 end)
-lsp.setup()
+
+-- Mason setup
+require('mason').setup({})
+require('mason-lspconfig').setup({
+  handlers = {
+    -- this first function is the "default handler"
+    -- it applies to every language server without a "custom handler"
+    function(server_name)
+      require('lspconfig')[server_name].setup({
+        capabilities = lsp_zero.get_capabilities()
+      })
+    end,
+  }
+})
+
+-- Change the Diagnostic symbols in the sign column (gutter)
+local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
+for type, icon in pairs(signs) do
+  local hl = "DiagnosticSign" .. type
+  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
+end
 
 -- autopairs
 local autopairs_setup, autopairs = pcall(require, "nvim-autopairs")
@@ -390,7 +397,6 @@ keymap.set("n", "<leader>fs", "<cmd>Telescope live_grep<cr>") -- find string in 
 keymap.set("n", "<leader>fc", "<cmd>Telescope grep_string<cr>") -- find string under cursor in current working directory
 keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<cr>") -- list open buffers in current neovim instance
 keymap.set("n", "<leader>fh", "<cmd>Telescope help_tags<cr>") -- list available help tags
-keymap.set("n", "K", function() vim.diagnostic.open_float() end, opts)
 
 -- git
 keymap.set("n", "<leader>gs", vim.cmd.Git)

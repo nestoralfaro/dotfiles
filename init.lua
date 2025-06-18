@@ -1,5 +1,5 @@
 -- ~/.config/nvim/init.lua
--- ttf: JetBrainsMono-Bold, JetBrainsMono-Regular, and JetBrainsMonoNL-Regular.
+-- ttf: JetBrainsMono-NF or Hack NF
 --[[
 **************************************************************
                           plugins

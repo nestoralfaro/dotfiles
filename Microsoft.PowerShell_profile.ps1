@@ -18,3 +18,4 @@ function prompt {
 Set-PSReadLineOption -PredictionSource History
 Set-PSReadLineKeyHandler -Key Tab -Function MenuComplete
 Set-PsFzfOption -PSReadlineChordProvider 'Ctrl+t' -PSReadlineChordReverseHistory 'Ctrl+r'
+Set-Alias cs csharprepl

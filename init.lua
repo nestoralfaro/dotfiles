@@ -60,7 +60,7 @@ packer.startup(function(use)
 	-- lsp
 	use {
 		'VonHeikemen/lsp-zero.nvim',
-		branch = 'v3.x',
+		branch = 'v1.x',
 		requires = {
 		-- LSP Support
 		{'neovim/nvim-lspconfig'},
@@ -80,12 +80,26 @@ packer.startup(function(use)
 	}
 	-- auto closing
 	use("windwp/nvim-autopairs") -- autoclose parens, brackets, quotes, etc...
-	use("windwp/nvim-ts-autotag") -- autoclose tags
+	use({ "windwp/nvim-ts-autotag" }) -- autoclose tags
 	-- git
 	use("tpope/vim-fugitive")
 	use("lewis6991/gitsigns.nvim")
 	-- indent blank line
 	use("lukas-reineke/indent-blankline.nvim")
+  -- imma try this
+  use({
+  "ThePrimeagen/harpoon",
+    branch = "harpoon2",
+    requires = { { "nvim-lua/plenary.nvim" }}
+  })
+  -- cool renaming
+  use {
+    "smjonas/inc-rename.nvim",
+    config = function()
+      require("inc_rename").setup()
+    end,
+  }
+
 	-- required per documentation
 	if packer_bootstrap then
 		require("packer").sync()
@@ -95,32 +109,17 @@ end)
 -- ********************** config *******************************
 prequire("Comment")
 
--- Setup nvim-ts-autotag
-local tsautotagStatus, tsautotag = pcall(require, "nvim-ts-autotag")
-if tsautotagStatus then
-  tsautotag.setup({
-    opts = {
-      -- Defaults
-      enable_close = true, -- Auto close tags
-      enable_rename = true, -- Auto rename pairs of tags
-      enable_close_on_slash = false -- Auto close on trailing </
-    },
-  })
-else
-  print("nvim-ts-autotag not found - skipping setup. Try running `:PackerClean` & `:PackerSync` and finally `:PackerCompile`")
-end
+require("nvim-ts-autotag").setup()
 
-prequire("lualine", {
-  options = { theme = "codedark" },
-  sections = {
-    lualine_a = {'mode'},
-    lualine_b = {'branch', 'diff', 'diagnostics'},
-    lualine_c = {{'filename', file_status=true, path=2}},
-    lualine_x = {'encoding', 'fileformat', 'filetype'},
-    lualine_y = {'progress'},
-    lualine_z = {'location'}
-  },
-})
+-- prequire("nvim-ts-autotag")
+-- if not tsautotagStatus then
+--   local tsautotagStatus, tsautotag = pcall(require, "nvim-ts-autotag")
+--   print("nvim-ts-autotag")
+--   return
+-- end
+-- tsautotag.setup()
+
+prequire("lualine", { options = { theme = "codedark" } } )
 local status, _ = pcall(vim.cmd, "colorscheme vscode")
 if not status then
   print("vscode colorscheme not found.")
@@ -163,17 +162,36 @@ treesitter.setup({
   -- enable indentation
   indent = { enable = true },
   -- enable autotagging (w/ nvim-ts-autotag plugin)
-  autotag = { enable = true },
-  -- ensure these language parsers are installed (specify languages instead of "all")
-  ensure_installed = { 
-    "lua", "vim", "vimdoc", "query", "javascript", "typescript", 
-    "html", "css", "json", "markdown", "bash", "python", "rust" 
+  -- autotag = { enable = true },
+  -- ensure these language parsers are installed
+  ensure_installed = {
+    "c",
+    "cpp",
+    "c_sharp",
+    "json",
+    "javascript",
+    "typescript",
+    "tsx",
+    "yaml",
+    "html",
+    "css",
+    "markdown",
+    "markdown_inline",
+    "bash",
+    "lua",
+    "vim",
+    "vimdoc",
+    "dockerfile",
+    "gitignore",
+    "query",
+    "python",
+    "rust"
   },
   -- Install parsers synchronously (only applied to `ensure_installed`)
   sync_install = false,
   -- Automatically install missing parsers when entering buffer
   -- Recommendation: set to false if you don't have `tree-sitter` CLI installed locally
-  auto_install = false,
+  auto_install = true,
 })
 -- nvim-cmp
 local cmp_status, cmp = pcall(require, "cmp")
@@ -212,45 +230,50 @@ cmp.setup({
     { name = "path" }, -- file system paths
   }),
 })
+-- lsp
+local lsp = require("lsp-zero")
+lsp.preset("recommended")
+lsp.ensure_installed({
+  'ts_ls',
+  'rust_analyzer',
+})
+-- Fix Undefined global 'vim'
+lsp.nvim_workspace()
+local cmp_select = { behavior = cmp.SelectBehavior.Select }
+local cmp_mappings = lsp.defaults.cmp_mappings({
+  ['<C-k>'] = cmp.mapping.select_prev_item(cmp_select),
+  ['<C-j>'] = cmp.mapping.select_next_item(cmp_select),
+  ['<C-y>'] = cmp.mapping.confirm({ select = true }),
+  ["<C-Space>"] = cmp.mapping.complete(),
+})
+cmp_mappings['<Tab>'] = nil
+cmp_mappings['<S-Tab>'] = nil
+lsp.setup_nvim_cmp({
+  mapping = cmp_mappings
+})
 
--- LSP Setup (Updated for v3.x)
-local lsp_zero = require('lsp-zero')
+-- Change the Diagnostic symbols in the sign column (gutter)
+-- (not in youtube nvim video)
+local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
+for type, icon in pairs(signs) do
+  local hl = "DiagnosticSign" .. type
+  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
+end
 
--- lsp_zero.on_attach is now the way to setup keybindings
-lsp_zero.on_attach(function(client, bufnr)
+lsp.on_attach(function(client, bufnr)
   local opts = {buffer = bufnr, remap = false}
   vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
   vim.keymap.set("n", "<C-k>", function() vim.lsp.buf.hover() end, opts)
   vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, opts)
   vim.keymap.set("n", "K", function() vim.diagnostic.open_float() end, opts)
-  vim.keymap.set("n", "[d", function() vim.diagnostic.goto_prev() end, opts)
-  vim.keymap.set("n", "]d", function() vim.diagnostic.goto_next() end, opts)
+  vim.keymap.set("n", "[d", function() vim.diagnostic.goto_next() end, opts)
+  vim.keymap.set("n", "]d", function() vim.diagnostic.goto_prev() end, opts)
   vim.keymap.set("n", "<leader>vca", function() vim.lsp.buf.code_action() end, opts)
   vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, opts)
   vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, opts)
   vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
 end)
-
--- Mason setup
-require('mason').setup({})
-require('mason-lspconfig').setup({
-  handlers = {
-    -- this first function is the "default handler"
-    -- it applies to every language server without a "custom handler"
-    function(server_name)
-      require('lspconfig')[server_name].setup({
-        capabilities = lsp_zero.get_capabilities()
-      })
-    end,
-  }
-})
-
--- Change the Diagnostic symbols in the sign column (gutter)
-local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
-for type, icon in pairs(signs) do
-  local hl = "DiagnosticSign" .. type
-  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
-end
+lsp.setup()
 
 -- autopairs
 local autopairs_setup, autopairs = pcall(require, "nvim-autopairs")
@@ -355,14 +378,14 @@ keymap.set("n", "*", "*``")
 keymap.set("v", "J", ":m '>+1<CR>gv=gv") -- move visual line downwards
 keymap.set("v", "K", ":m '>-2<CR>gv=gv") -- move visual line upwards
 keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]]) -- replace selected word
--- keymap.set("n", "<leader>e", ":w<CR>:Ex<CR>")
-keymap.set("n", "<leader>e", function()
-  if vim.bo.modified then
-    vim.cmd(":w")
-  end
-  vim.cmd(":bd!")
-  vim.cmd(":Ex")
-end)
+keymap.set("n", "<leader>e", ":w<CR>:Ex<CR>")
+-- keymap.set("n", "<leader>e", function()
+--   if vim.bo.modified then
+--     vim.cmd(":w")
+--   end
+--   vim.cmd(":bd!")
+--   vim.cmd(":Ex")
+-- end)
 
 keymap.set("n", "J", "mzJ`z") -- J appends next line while keeping cursor in place
 keymap.set("n", "<C-u>", "<C-u>zz") -- half page jumping without moving cursor
@@ -398,7 +421,63 @@ keymap.set("n", "<leader>fs", "<cmd>Telescope live_grep<cr>") -- find string in 
 keymap.set("n", "<leader>fc", "<cmd>Telescope grep_string<cr>") -- find string under cursor in current working directory
 keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<cr>") -- list open buffers in current neovim instance
 keymap.set("n", "<leader>fh", "<cmd>Telescope help_tags<cr>") -- list available help tags
+keymap.set("n", "K", function() vim.diagnostic.open_float() end, opts)
 
 -- git
 keymap.set("n", "<leader>gs", vim.cmd.Git)
+
+-- whats this harpoon all about huh (i've got telescope already but whatever)
+local harpoon = require("harpoon")
+
+-- REQUIRED
+harpoon:setup()
+-- REQUIRED
+
+vim.keymap.set("n", "<leader>a", function() harpoon:list():add() end)
+vim.keymap.set("n", "<leader>c", function() harpoon:list():clear() end)
+vim.keymap.set("n", "<C-e>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
+
+vim.keymap.set("n", "<C-h>", function() harpoon:list():select(1) end)
+vim.keymap.set("n", "<C-j>", function() harpoon:list():select(2) end)
+vim.keymap.set("n", "<C-k>", function() harpoon:list():select(3) end)
+vim.keymap.set("n", "<C-l>", function() harpoon:list():select(4) end)
+
+-- Toggle previous & next buffers stored within Harpoon list
+vim.keymap.set("n", "<C-p>", function() harpoon:list():prev() end)
+vim.keymap.set("n", "<C-n>", function() harpoon:list():next() end)
+
+-- TODO: a better keyshortcut here maybe?
+vim.keymap.set("n", "<leader><Tab>", function()
+  local list = harpoon:list()
+
+  local function normalize(path)
+    return path and vim.loop.fs_realpath(path) or nil
+  end
+
+  local current = normalize(vim.api.nvim_buf_get_name(0))
+
+  local item1 = normalize(list.items[1] and list.items[1].value)
+  local item2 = normalize(list.items[2] and list.items[2].value)
+
+  if not item1 or not item2 then
+    print("Need at least 2 harpoon files")
+    return
+  end
+
+  if current == item1 then
+    list:select(2)
+  else
+    list:select(1)
+  end
+end)
+
+-- renaming
+require("inc_rename").setup {
+  preview_empty_name = true
+}
+
+vim.keymap.set("n", "<leader>rn", function()
+  return ":IncRename " .. vim.fn.expand("<cword>")
+end, { expr = true })
+
 print("should be good!")

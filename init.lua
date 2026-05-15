@@ -359,6 +359,7 @@ vim.diagnostic.config({
     focusable = true
   }
 })
+-- opt.shell = "pwsh.exe" -- sadness
 
 --[[
 **************************************************************

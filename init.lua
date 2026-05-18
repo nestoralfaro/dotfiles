@@ -1,5 +1,27 @@
 -- ~/.config/nvim/init.lua
 -- ttf: JetBrainsMono-NF or Hack NF
+
+-- [[ wsl's clipboard ]]
+-- local clip = "/mnt/c/Windows/System32/clip.exe"
+--
+-- if vim.fn.executable(clip) == 1 then
+--   vim.api.nvim_create_augroup("WSLYank", { clear = true })
+--
+--   vim.api.nvim_create_autocmd("TextYankPost", {
+--       group = "WSLYank",
+--       pattern = "*",
+--       callback = function()
+--         local event = vim.v.event
+--         if event.operator == "y" and event.regname == "" then
+--           local text = table.concat(vim.fn.getreg("0", 1, true), "\n")
+--           vim.fn.system(clip, text)
+--         end
+--       end,
+--     })
+-- end
+
+
+
 --[[
 **************************************************************
                           plugins
@@ -360,6 +382,10 @@ vim.diagnostic.config({
   }
 })
 -- opt.shell = "pwsh.exe" -- sadness
+-- -- remember `<leader>nh` stopping at `<leader>n`?
+-- opt.timeout = true
+-- opt.timeoutlen = 300 -- default is 1000; 300-500 is ideal
+-- opt.ttimeoutlen = 50 -- for keycodes
 
 --[[
 **************************************************************

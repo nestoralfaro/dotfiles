@@ -399,7 +399,8 @@ vim.g.mapleader = " "
 ------------------------
 -- Yanking keymap
 keymap.set("n", "Y", "yy")
-keymap.set("n", "*", "*``")
+keymap.set("n", "*", "*``"
+vim.keymap.set("x", "<leader>p", [["_dP]]))
 
 -- navigation
 keymap.set("v", "J", ":m '>+1<CR>gv=gv") -- move visual line downwards

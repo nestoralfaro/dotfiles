@@ -118,6 +118,16 @@ vim.treesitter.start = function() end -- adios treesitter
 mkdir -p ~/.local/share/nvim/site/pack/themes/start
 cd ~/.local/share/nvim/site/pack/themes/start
 git clone https://github.com/tomasiser/vim-code-dark
+
+## Watch out for windows CRLF (if cloning with `git.exe` instead):
+git -c core.autocrlf=input clone https://github.com/tomasiser/vim-code-dark \
+  ~/.local/share/nvim/site/pack/themes/start/vim-code-dark
+
+cd ~/.local/share/nvim/site/pack/themes/start/vim-code-dark
+
+git config core.autocrlf input
+git rm --cached -r .
+git reset --hard
 ]]
 vim.cmd.colorscheme("codedark")
 

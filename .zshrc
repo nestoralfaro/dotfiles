@@ -2,7 +2,7 @@
 alias vim="nvim"
 export EDITOR=vi
 export VISUAL=vi
-alias visudo="visudo EDITOR=vi"
+alias sudo="sudo EDITOR=vi"
 KEYTIMEOUT=1
 # bindkey -v
 bindkey -v '^?' backward-delete-char # to backspace when switching to insert mode

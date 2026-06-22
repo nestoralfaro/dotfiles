@@ -19,6 +19,7 @@
 --       end,
 --     })
 -- end
+
 --=============================================================================
 -- LEADER
 --=============================================================================
@@ -56,76 +57,33 @@ vim.opt.rtp:prepend(lazypath)
 --=============================================================================
 -- PLUGINS
 --=============================================================================
-
 require("lazy").setup({
   spec = {
+    ---------------------------------------------------------------------------
+    -- Looks
+    ---------------------------------------------------------------------------
+    { "Mofiqul/vscode.nvim", lazy = false, priority = 1000, }, -- theme
+    { "nvim-tree/nvim-web-devicons", }, -- icons
+    { "nvim-lualine/lualine.nvim", dependencies = { "nvim-tree/nvim-web-devicons", }, }, -- status line
+    { "lukas-reineke/indent-blankline.nvim", main = "ibl", opts = {} },
 
     ---------------------------------------------------------------------------
-    -- Theme
+    -- LSP Misc
     ---------------------------------------------------------------------------
-    { "Mofiqul/vscode.nvim", lazy = false, priority = 1000, },
-
-    ---------------------------------------------------------------------------
-    -- Icons
-    ---------------------------------------------------------------------------
-    { "nvim-tree/nvim-web-devicons", },
-
-    ---------------------------------------------------------------------------
-    -- Statusline
-    ---------------------------------------------------------------------------
-    { "nvim-lualine/lualine.nvim", dependencies = { "nvim-tree/nvim-web-devicons", }, },
-
-    ---------------------------------------------------------------------------
-    -- Telescope
-    ---------------------------------------------------------------------------
-    { "nvim-telescope/telescope.nvim", dependencies = { "nvim-lua/plenary.nvim", }, },
-
-    ---------------------------------------------------------------------------
-    -- Treesitter
-    ---------------------------------------------------------------------------
-	{
-	  'nvim-treesitter/nvim-treesitter',
-	  branch = 'main',
-	  build = ':TSUpdate',
-	  config = function()
-      -- Manually add the languages you want installed
-      local parsers = { "c", "cpp", "c_sharp", "lua", "vim", "vimdoc", "query", "html", "css", "javascript", "typescript", "tsx", "json", "markdown" }
-
-      -- Sync and install logic goes here depending on your automation needs
-	  end,
-	},
+    { "nvim-telescope/telescope.nvim", dependencies = { "nvim-lua/plenary.nvim", }, }, -- telescope. Thanks TJ
+    { 'nvim-treesitter/nvim-treesitter', lazy = false, build = ':TSUpdate' },
+    { "mason-org/mason.nvim", },
+    { "mason-org/mason-lspconfig.nvim", },
+    { "neovim/nvim-lspconfig", }, -- default LSP configs (e.g., with good default options for the langserver like roslyn-language-server --stdio)
+    { "saghen/blink.cmp", version = "*", }, -- cmp
+    { "windwp/nvim-autopairs", }, -- autopairs
+    { "windwp/nvim-ts-autotag", }, -- auto close HTML/JSX tags
    
     ---------------------------------------------------------------------------
     -- Git
     ---------------------------------------------------------------------------
     { "lewis6991/gitsigns.nvim", },
     { "kdheepak/lazygit.nvim", },
-
-    ---------------------------------------------------------------------------
-    -- Completion
-    ---------------------------------------------------------------------------
-    { "saghen/blink.cmp", version = "*", },
-
-    ---------------------------------------------------------------------------
-    -- Autopairs
-    ---------------------------------------------------------------------------
-    { "windwp/nvim-autopairs", },
-
-    ---------------------------------------------------------------------------
-    -- Auto close HTML/JSX tags
-    ---------------------------------------------------------------------------
-    { "windwp/nvim-ts-autotag", },
-
-    ---------------------------------------------------------------------------
-    -- Mason
-    ---------------------------------------------------------------------------
-    { "mason-org/mason.nvim", },
-    { "mason-org/mason-lspconfig.nvim", },
-
-    ---------------------------------------------------------------------------
-    -- Default LSP Configs
-    ---------------------------------------------------------------------------
-    { "neovim/nvim-lspconfig", },
   },
 
   checker = { enabled = true, },
@@ -162,56 +120,127 @@ vim.cmd([[autocmd BufEnter * set formatoptions-=cro]]) -- no auto commenting
 vim.g.netrw_bufsettings="nomodifiable nomed number relativenumber nobuflisted nowrap readonly" -- magical spell for relative line numbers in netrw
 opt.clipboard:append("unnamedplus") -- use system clipboard as default register (i.e., adios `"+` or `"*`)
 
---=============================================================================
--- COLORSCHEME
---=============================================================================
-require("vscode").setup({ transparent = false, })
-vim.cmd.colorscheme("vscode")
 
 --=============================================================================
--- TREESITTER
+-- PLUGIN Config
 --=============================================================================
--- require("nvim-treesitter.configs").setup({
---   ensure_installed = {
---     "c",
---     "cpp",
---     "c_sharp",
---     "lua",
---     "vim",
---     "vimdoc",
---     "query",
---     "html",
---     "css",
---     "javascript",
---     "typescript",
---     "tsx",
---     "json",
---     "markdown",
---   },
---
---   highlight = { enable = true, },
---   indent = { enable = true, },
--- })
+---------------------------------------------------------------------------
+-- Looks
+---------------------------------------------------------------------------
+  -- colorscheme
+  require("vscode").setup({ transparent = false, })
+  vim.cmd.colorscheme("vscode")
+  -- lualine
+  require("lualine").setup({
+    options = {
+      theme = "auto",
+      icons_enabled = true,
+      globalstatus = true,
+    },
 
---=============================================================================
--- BLINK.CMP
---=============================================================================
-require("blink.cmp").setup({
-  keymap = { preset = "enter", },
-  completion = { documentation = { auto_show = true, }, },
-  appearance = { nerd_font_variant = "mono", },
-  signature = { enabled = true, },
-})
+    sections = {
+      lualine_a = { "mode" },
 
---=============================================================================
--- AUTOPAIRS
---=============================================================================
-require("nvim-autopairs").setup()
+      lualine_b = {
+        "branch",
+        "diff",
+        "diagnostics",
+      },
 
---=============================================================================
--- AUTOTAG
---=============================================================================
-require("nvim-ts-autotag").setup()
+      lualine_c = { "filename" },
+
+      lualine_x = {
+        "encoding",
+        "fileformat",
+        "filetype",
+      },
+
+      lualine_y = { "progress" },
+
+      lualine_z = { "location" },
+    },
+  })
+  -- indent-blankline
+  require("ibl").setup({
+    indent = { char = "│", },
+    scope = {
+      enabled = true,
+      show_start = false,
+      show_end = false,
+    },
+  })
+
+---------------------------------------------------------------------------
+-- LSP Misc
+---------------------------------------------------------------------------
+  -- BLINK.CMP
+  require("blink.cmp").setup({
+    keymap = { preset = "enter", },
+    completion = { documentation = { auto_show = true, }, },
+    appearance = { nerd_font_variant = "mono", },
+    signature = { enabled = true, },
+  })
+  -- Autoclosing
+  require("nvim-ts-autotag").setup()
+  require("nvim-autopairs").setup()
+  -- Treesitter
+  require("nvim-treesitter").setup({
+    ensure_installed = {
+      "c",
+      "cpp",
+      "c_sharp",
+      "lua",
+      "vim",
+      "vimdoc",
+      "query",
+      "html",
+      "css",
+      "javascript",
+      "typescript",
+      "tsx",
+      "json",
+      "markdown",
+    },
+
+    highlight = { enable = true, },
+    indent = { enable = true, },
+  })
+  -- TELESCOPE
+  local telescope = require("telescope.builtin")
+  vim.keymap.set( "n", "<leader>ff", telescope.find_files, { desc = "Find files" })
+  vim.keymap.set( "n", "<leader>fg", telescope.live_grep, { desc = "Live grep" })
+  vim.keymap.set( "n", "<leader>fgc", function() telescope.live_grep({ additional_args = { "--type", "cs" } }) end, { desc = "C# grep" })
+  vim.keymap.set( "n", "<leader>fb", telescope.buffers, { desc = "Buffers" })
+  vim.keymap.set( "n", "<leader>fh", telescope.help_tags, { desc = "Help tags" })
+  vim.keymap.set( "n", "<leader>fs", telescope.lsp_document_symbols, { desc = "Document symbols" })
+  vim.keymap.set( "n", "<leader>fw", telescope.lsp_workspace_symbols, { desc = "Workspace symbols" })
+  vim.keymap.set( "n", "<leader>fr", telescope.lsp_references, { desc = "References" })
+  -- MASON
+  require("mason").setup()
+  require("mason-lspconfig").setup({
+    ensure_installed = {
+      "clangd",
+      "roslyn_ls",
+      "lua_ls",
+    },
+
+    automatic_installation = true,
+  })
+  -- LSP
+  vim.lsp.enable("clangd")
+  vim.lsp.enable("roslyn_ls")
+  vim.lsp.enable("lua_ls")
+  -- DIAGNOSTICS
+  vim.diagnostic.config({
+    virtual_text = true,
+    underline = true,
+    signs = true,
+    severity_sort = true,
+
+    float = {
+      border = "rounded",
+    },
+  })
 
 --=============================================================================
 -- GITSIGNS
@@ -219,92 +248,9 @@ require("nvim-ts-autotag").setup()
 require("gitsigns").setup()
 
 --=============================================================================
--- LUALINE
---=============================================================================
-
-require("lualine").setup({
-  options = {
-    theme = "auto",
-    icons_enabled = true,
-    globalstatus = true,
-  },
-
-  sections = {
-    lualine_a = { "mode" },
-
-    lualine_b = {
-      "branch",
-      "diff",
-      "diagnostics",
-    },
-
-    lualine_c = { "filename" },
-
-    lualine_x = {
-      "encoding",
-      "fileformat",
-      "filetype",
-    },
-
-    lualine_y = { "progress" },
-
-    lualine_z = { "location" },
-  },
-})
-
---=============================================================================
--- TELESCOPE
---=============================================================================
-local telescope = require("telescope.builtin")
-
-vim.keymap.set( "n", "<leader>ff", telescope.find_files, { desc = "Find files" })
-vim.keymap.set( "n", "<leader>fg", telescope.live_grep, { desc = "Live grep" })
-vim.keymap.set( "n", "<leader>fb", telescope.buffers, { desc = "Buffers" })
-vim.keymap.set( "n", "<leader>fh", telescope.help_tags, { desc = "Help tags" })
-vim.keymap.set( "n", "<leader>fs", telescope.lsp_document_symbols, { desc = "Document symbols" })
-vim.keymap.set( "n", "<leader>fw", telescope.lsp_workspace_symbols, { desc = "Workspace symbols" })
-vim.keymap.set( "n", "<leader>fr", telescope.lsp_references, { desc = "References" })
-
---=============================================================================
--- MASON
---=============================================================================
-require("mason").setup()
-require("mason-lspconfig").setup({
-  ensure_installed = {
-    "clangd",
-    "roslyn_ls",
-    "lua_ls",
-  },
-
-  automatic_installation = true,
-})
-
---=============================================================================
--- LSP
---=============================================================================
-vim.lsp.enable("clangd")
-vim.lsp.enable("roslyn_ls")
-vim.lsp.enable("lua_ls")
-
---=============================================================================
--- DIAGNOSTICS
---=============================================================================
-vim.diagnostic.config({
-  virtual_text = true,
-  underline = true,
-  signs = true,
-  severity_sort = true,
-
-  float = {
-    border = "rounded",
-  },
-})
-
---=============================================================================
 -- REMAPS
 --=============================================================================
 local keymap = vim.keymap
-
 keymap.set( "n", "Y", "yy", { desc = "Yank line with Y" })
 keymap.set( "v", "J", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
 keymap.set( "v", "K", ":m '>-2<CR>gv=gv", { desc = "Move selection up" })

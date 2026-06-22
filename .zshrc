@@ -1,5 +1,7 @@
 # export CUBEB_BACKEND=alsa # alsa audio for librewolf. Setting up this env var is a blur. Not sure if i actually need it (or what it does)
 alias vim="nvim"
+export EDITOR=vi
+export VISUAL=vi
 KEYTIMEOUT=1
 # bindkey -v
 bindkey -v '^?' backward-delete-char # to backspace when switching to insert mode

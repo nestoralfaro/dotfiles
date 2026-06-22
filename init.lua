@@ -88,25 +88,10 @@ require("lazy").setup({
 	  branch = 'main',
 	  build = ':TSUpdate',
 	  config = function()
-	    -- Manually add the languages you want installed
-	    local parsers = {
-        "c",
-        "cpp",
-        "c_sharp",
-        "lua",
-        "vim",
-        "vimdoc",
-        "query",
-        "html",
-        "css",
-        "javascript",
-        "typescript",
-        "tsx",
-        "json",
-      "markdown"
-    }
+      -- Manually add the languages you want installed
+      local parsers = { "c", "cpp", "c_sharp", "lua", "vim", "vimdoc", "query", "html", "css", "javascript", "typescript", "tsx", "json", "markdown" }
 
-    -- Sync and install logic goes here depending on your automation needs
+      -- Sync and install logic goes here depending on your automation needs
 	  end,
 	},
    
@@ -136,6 +121,11 @@ require("lazy").setup({
     ---------------------------------------------------------------------------
     { "mason-org/mason.nvim", },
     { "mason-org/mason-lspconfig.nvim", },
+
+    ---------------------------------------------------------------------------
+    -- Default LSP Configs
+    ---------------------------------------------------------------------------
+    { "neovim/nvim-lspconfig", },
   },
 
   checker = { enabled = true, },
@@ -207,23 +197,10 @@ vim.cmd.colorscheme("vscode")
 -- BLINK.CMP
 --=============================================================================
 require("blink.cmp").setup({
-  keymap = {
-    preset = "enter",
-  },
-
-  completion = {
-    documentation = {
-      auto_show = true,
-    },
-  },
-
-  appearance = {
-    nerd_font_variant = "mono",
-  },
-
-  signature = {
-    enabled = true,
-  },
+  keymap = { preset = "enter", },
+  completion = { documentation = { auto_show = true, }, },
+  appearance = { nerd_font_variant = "mono", },
+  signature = { enabled = true, },
 })
 
 --=============================================================================
@@ -280,54 +257,13 @@ require("lualine").setup({
 --=============================================================================
 local telescope = require("telescope.builtin")
 
-vim.keymap.set(
-  "n",
-  "<leader>ff",
-  telescope.find_files,
-  { desc = "Find files" }
-)
-
-vim.keymap.set(
-  "n",
-  "<leader>fg",
-  telescope.live_grep,
-  { desc = "Live grep" }
-)
-
-vim.keymap.set(
-  "n",
-  "<leader>fb",
-  telescope.buffers,
-  { desc = "Buffers" }
-)
-
-vim.keymap.set(
-  "n",
-  "<leader>fh",
-  telescope.help_tags,
-  { desc = "Help tags" }
-)
-
-vim.keymap.set(
-  "n",
-  "<leader>fs",
-  telescope.lsp_document_symbols,
-  { desc = "Document symbols" }
-)
-
-vim.keymap.set(
-  "n",
-  "<leader>fw",
-  telescope.lsp_workspace_symbols,
-  { desc = "Workspace symbols" }
-)
-
-vim.keymap.set(
-  "n",
-  "<leader>fr",
-  telescope.lsp_references,
-  { desc = "References" }
-)
+vim.keymap.set( "n", "<leader>ff", telescope.find_files, { desc = "Find files" })
+vim.keymap.set( "n", "<leader>fg", telescope.live_grep, { desc = "Live grep" })
+vim.keymap.set( "n", "<leader>fb", telescope.buffers, { desc = "Buffers" })
+vim.keymap.set( "n", "<leader>fh", telescope.help_tags, { desc = "Help tags" })
+vim.keymap.set( "n", "<leader>fs", telescope.lsp_document_symbols, { desc = "Document symbols" })
+vim.keymap.set( "n", "<leader>fw", telescope.lsp_workspace_symbols, { desc = "Workspace symbols" })
+vim.keymap.set( "n", "<leader>fr", telescope.lsp_references, { desc = "References" })
 
 --=============================================================================
 -- MASON
@@ -336,7 +272,7 @@ require("mason").setup()
 require("mason-lspconfig").setup({
   ensure_installed = {
     "clangd",
-    "omnisharp",
+    "roslyn_ls",
     "lua_ls",
   },
 
@@ -347,7 +283,7 @@ require("mason-lspconfig").setup({
 -- LSP
 --=============================================================================
 vim.lsp.enable("clangd")
-vim.lsp.enable("omnisharp")
+vim.lsp.enable("roslyn_ls")
 vim.lsp.enable("lua_ls")
 
 --=============================================================================
@@ -435,6 +371,7 @@ keymap.set( "n", "<leader>gg", "<cmd>LazyGit<CR>", { desc = "LazyGit" })
 -- STARTUP
 --=============================================================================
 print("init.lua loaded!")
+
 
 
 

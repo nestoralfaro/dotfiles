@@ -98,7 +98,19 @@ require("lazy").setup({
         },
       },
     },
-
+    {
+      "olimorris/codecompanion.nvim",
+      dependencies = {
+        "nvim-lua/plenary.nvim",
+        "nvim-treesitter/nvim-treesitter",
+      },
+      opts = {
+        -- NOTE: The log_level is in `opts.opts`
+        opts = {
+          log_level = "DEBUG", -- or "TRACE"
+        },
+      },
+    },
 
     ---------------------------------------------------------------------------
     -- Git
@@ -185,9 +197,24 @@ require("ibl").setup({
 -- BLINK.CMP
 require("blink.cmp").setup({
   keymap = { preset = "enter", },
-  completion = { documentation = { auto_show = true, }, },
+  completion = { documentation = { auto_show = true, }, ghost_text = { enabled = true }, },
   appearance = { nerd_font_variant = "mono", },
   signature = { enabled = true, },
+  
+})
+-- requires Zed ACP adapter for Claude Code
+require("codecompanion").setup({
+  adapters = {
+    acp = {
+      claude_code = function()
+        return require("codecompanion.adapters").extend("claude_code", {
+          env = {
+            CLAUDE_CODE_OAUTH_TOKEN = "my-oauth-token",
+          },
+        })
+      end,
+    },
+  },
 })
 -- Autoclosing
 require("nvim-ts-autotag").setup()
@@ -233,7 +260,7 @@ require("mason-lspconfig").setup({
   ensure_installed = {
     "clangd",
     "roslyn_ls",
-    "luals",
+    "lua_ls",
   },
   automatic_installation = true,
 })

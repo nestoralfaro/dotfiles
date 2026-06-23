@@ -46,7 +46,7 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
   if vim.v.shell_error ~= 0 then
     vim.api.nvim_echo({
       { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-      { out, "WarningMsg" },
+      { out,                            "WarningMsg" },
     }, true, {})
     os.exit(1)
   end
@@ -62,23 +62,44 @@ require("lazy").setup({
     ---------------------------------------------------------------------------
     -- Looks
     ---------------------------------------------------------------------------
-    { "Mofiqul/vscode.nvim", lazy = false, priority = 1000, }, -- theme
-    { "nvim-tree/nvim-web-devicons", }, -- icons
-    { "nvim-lualine/lualine.nvim", dependencies = { "nvim-tree/nvim-web-devicons", }, }, -- status line
-    { "lukas-reineke/indent-blankline.nvim", main = "ibl", opts = {} },
+    { "Mofiqul/vscode.nvim",                 lazy = false,                                      priority = 1000, }, -- theme
+    { "nvim-tree/nvim-web-devicons", },                                                                             -- icons
+    { "nvim-lualine/lualine.nvim",           dependencies = { "nvim-tree/nvim-web-devicons", }, },                  -- status line
+    { "lukas-reineke/indent-blankline.nvim", main = "ibl",                                      opts = {} },
 
     ---------------------------------------------------------------------------
     -- LSP Misc
     ---------------------------------------------------------------------------
-    { "nvim-telescope/telescope.nvim", dependencies = { "nvim-lua/plenary.nvim", }, }, -- telescope. Thanks TJ
-    { 'nvim-treesitter/nvim-treesitter', lazy = false, build = ':TSUpdate' },
+    { "nvim-telescope/telescope.nvim",       dependencies = { "nvim-lua/plenary.nvim", }, }, -- telescope. Thanks TJ
+    { 'nvim-treesitter/nvim-treesitter',     lazy = false,                                      build = ':TSUpdate' },
     { "mason-org/mason.nvim", },
     { "mason-org/mason-lspconfig.nvim", },
-    { "neovim/nvim-lspconfig", }, -- default LSP configs (e.g., with good default options for the langserver like roslyn-language-server --stdio)
-    { "saghen/blink.cmp", version = "*", }, -- cmp
-    { "windwp/nvim-autopairs", }, -- autopairs
-    { "windwp/nvim-ts-autotag", }, -- auto close HTML/JSX tags
-   
+    { "neovim/nvim-lspconfig", },                              -- default LSP configs (e.g., with good default options for the langserver like roslyn-language-server --stdio)
+    { "saghen/blink.cmp",                    version = "*", }, -- cmp
+    { "windwp/nvim-autopairs", },                              -- autopairs
+    { "windwp/nvim-ts-autotag", },                             -- auto close HTML/JSX tags
+    {
+      "folke/which-key.nvim",
+      event = "VeryLazy",
+      opts = {
+        -- your configuration comes here
+        -- or leave it empty to use the default settings
+        -- refer to the configuration section below
+      },
+      init = function()
+        vim.o.timeout = true
+        vim.o.timeoutlen = 500
+      end,
+      keys = {
+        {
+          "<leader>?",
+          function() require("which-key").show({ global = false }) end,
+          desc = "Buffer Local Keymaps (which-key)",
+        },
+      },
+    },
+
+
     ---------------------------------------------------------------------------
     -- Git
     ---------------------------------------------------------------------------
@@ -98,27 +119,28 @@ opt.relativenumber = true
 opt.number = true -- shows absolute line number on cursor line (when relative number is on)
 opt.wrap = false
 opt.linebreak = false
-opt.ignorecase = true -- can be overriden by prefixing search with \C
-opt.smartcase = true -- assume case-sensitive if search mixes case
+opt.ignorecase = true   -- can be overriden by prefixing search with \C
+opt.smartcase = true    -- assume case-sensitive if search mixes case
 opt.termguicolors = true
 opt.background = "dark" -- colorschemes that can be light or dark will be made dark
-opt.signcolumn = "yes" -- show sign column, powered by the LSP and LSP Language Server
-opt.cursorline = true -- highlight current cursor line
-opt.swapfile = false -- adios swapfile
+opt.signcolumn = "yes"  -- show sign column, powered by the LSP and LSP Language Server
+opt.cursorline = true   -- highlight current cursor line
+opt.swapfile = false    -- adios swapfile
 opt.guicursor = "n-v-c-i:block"
 opt.scrolloff = 8
 opt.backspace = "indent,eol,start" -- allow backspace on indent, end of line or insert mode start position
-opt.tabstop = 2 -- 2 spaces for tabs (prettier default)
-opt.shiftwidth = 2 -- 2 spaces for indent width
-opt.expandtab = true -- expand tab to spaces
-opt.autoindent = true -- copy indent from current line when starting new one
+opt.tabstop = 2                    -- 2 spaces for tabs (prettier default)
+opt.shiftwidth = 2                 -- 2 spaces for indent width
+opt.expandtab = true               -- expand tab to spaces
+opt.autoindent = true              -- copy indent from current line when starting new one
 --[[
 `:bd! N` where `N` is the annoying buffer with the `+` found with `:ls!` (or even better `:filter /+/ ls!`)
 ]]
-opt.completeopt = { "menu", "menuone","popup", "fuzzy" } -- see :h completeopt
-vim.cmd([[autocmd BufEnter * set formatoptions-=cro]]) -- no auto commenting
-vim.g.netrw_bufsettings="nomodifiable nomed number relativenumber nobuflisted nowrap readonly" -- magical spell for relative line numbers in netrw
-opt.clipboard:append("unnamedplus") -- use system clipboard as default register (i.e., adios `"+` or `"*`)
+opt.completeopt = { "menu", "menuone", "popup", "fuzzy" }              -- see :h completeopt
+vim.cmd([[autocmd BufEnter * set formatoptions-=cro]])                 -- no auto commenting
+vim.g.netrw_bufsettings =
+"nomodifiable nomed number relativenumber nobuflisted nowrap readonly" -- magical spell for relative line numbers in netrw
+opt.clipboard:append("unnamedplus")                                    -- use system clipboard as default register (i.e., adios `"+` or `"*`)
 
 
 --=============================================================================
@@ -127,120 +149,109 @@ opt.clipboard:append("unnamedplus") -- use system clipboard as default register 
 ---------------------------------------------------------------------------
 -- Looks
 ---------------------------------------------------------------------------
-  -- colorscheme
-  require("vscode").setup({ transparent = false, })
-  vim.cmd.colorscheme("vscode")
-  -- lualine
-  require("lualine").setup({
-    options = {
-      theme = "auto",
-      icons_enabled = true,
-      globalstatus = true,
-    },
+-- colorscheme
+require("vscode").setup({ transparent = false, })
+vim.cmd.colorscheme("vscode")
+-- lualine
+require("lualine").setup({
+  options = {
+    theme = "codedark",
+    icons_enabled = true,
+    globalstatus = true,
+  },
 
-    sections = {
-      lualine_a = { "mode" },
-
-      lualine_b = {
-        "branch",
-        "diff",
-        "diagnostics",
-      },
-
-      lualine_c = { "filename" },
-
-      lualine_x = {
-        "encoding",
-        "fileformat",
-        "filetype",
-      },
-
-      lualine_y = { "progress" },
-
-      lualine_z = { "location" },
-    },
-  })
-  -- indent-blankline
-  require("ibl").setup({
-    indent = { char = "│", },
-    scope = {
-      enabled = true,
-      show_start = false,
-      show_end = false,
-    },
-  })
+  sections = {
+    lualine_a = { "mode" },
+    lualine_b = { "branch", "diff", "diagnostics" },
+    lualine_c = { "filename" },
+    lualine_x = { "encoding", "fileformat", "filetype" },
+    lualine_y = { "progress" },
+    lualine_z = { "location" },
+  },
+})
+-- indent-blankline
+require("ibl").setup({
+  indent = { char = "│", },
+  scope = {
+    enabled = true,
+    show_start = false,
+    show_end = false,
+  },
+})
 
 ---------------------------------------------------------------------------
 -- LSP Misc
 ---------------------------------------------------------------------------
-  -- BLINK.CMP
-  require("blink.cmp").setup({
-    keymap = { preset = "enter", },
-    completion = { documentation = { auto_show = true, }, },
-    appearance = { nerd_font_variant = "mono", },
-    signature = { enabled = true, },
-  })
-  -- Autoclosing
-  require("nvim-ts-autotag").setup()
-  require("nvim-autopairs").setup()
-  -- Treesitter
-  require("nvim-treesitter").setup({
-    ensure_installed = {
-      "c",
-      "cpp",
-      "c_sharp",
-      "lua",
-      "vim",
-      "vimdoc",
-      "query",
-      "html",
-      "css",
-      "javascript",
-      "typescript",
-      "tsx",
-      "json",
-      "markdown",
-    },
+-- BLINK.CMP
+require("blink.cmp").setup({
+  keymap = { preset = "enter", },
+  completion = { documentation = { auto_show = true, }, },
+  appearance = { nerd_font_variant = "mono", },
+  signature = { enabled = true, },
+})
+-- Autoclosing
+require("nvim-ts-autotag").setup()
+require("nvim-autopairs").setup()
+-- Treesitter
+require("nvim-treesitter").setup({
+  ensure_installed = {
+    "c",
+    "cpp",
+    "c_sharp",
+    "lua",
+    "vim",
+    "vimdoc",
+    "query",
+    "html",
+    "css",
+    "javascript",
+    "typescript",
+    "tsx",
+    "json",
+    "markdown",
+  },
 
-    highlight = { enable = true, },
-    indent = { enable = true, },
-  })
-  -- TELESCOPE
-  local telescope = require("telescope.builtin")
-  vim.keymap.set( "n", "<leader>ff", telescope.find_files, { desc = "Find files" })
-  vim.keymap.set( "n", "<leader>fg", telescope.live_grep, { desc = "Live grep" })
-  vim.keymap.set( "n", "<leader>fgc", function() telescope.live_grep({ additional_args = { "--type", "cs" } }) end, { desc = "C# grep" })
-  vim.keymap.set( "n", "<leader>fb", telescope.buffers, { desc = "Buffers" })
-  vim.keymap.set( "n", "<leader>fh", telescope.help_tags, { desc = "Help tags" })
-  vim.keymap.set( "n", "<leader>fs", telescope.lsp_document_symbols, { desc = "Document symbols" })
-  vim.keymap.set( "n", "<leader>fw", telescope.lsp_workspace_symbols, { desc = "Workspace symbols" })
-  vim.keymap.set( "n", "<leader>fr", telescope.lsp_references, { desc = "References" })
-  -- MASON
-  require("mason").setup()
-  require("mason-lspconfig").setup({
-    ensure_installed = {
-      "clangd",
-      "roslyn_ls",
-      "lua_ls",
-    },
+  highlight = { enable = true, },
+  indent = { enable = true, },
+})
+-- TELESCOPE
+local telescope = require("telescope.builtin")
+vim.keymap.set("n", "<leader>ff", telescope.find_files, { desc = "Find files" })
+vim.keymap.set("n", "<leader>fo", telescope.oldfiles, { desc = "Find in recent files" })
+vim.keymap.set("n", "<leader>fc", telescope.grep_string, { desc = "Find string under cursor in cwd" })
+vim.keymap.set("n", "<leader>fg", telescope.live_grep, { desc = "Live grep" })
+vim.keymap.set("n", "<leader>fgc", function() telescope.live_grep({ additional_args = { "--type", "cs" } }) end,
+  { desc = "C# grep" })
+vim.keymap.set("n", "<leader>fb", telescope.buffers, { desc = "Buffers" })
+vim.keymap.set("n", "<leader>fh", telescope.help_tags, { desc = "Help tags" })
+vim.keymap.set("n", "<leader>fs", telescope.lsp_document_symbols, { desc = "Document symbols" })
+vim.keymap.set("n", "<leader>fw", telescope.lsp_workspace_symbols, { desc = "Workspace symbols" })
+vim.keymap.set("n", "<leader>fr", telescope.lsp_references, { desc = "References" })
+-- MASON
+require("mason").setup()
+require("mason-lspconfig").setup({
+  ensure_installed = {
+    "clangd",
+    "roslyn_ls",
+    "luals",
+  },
+  automatic_installation = true,
+})
+-- LSP
+vim.lsp.enable("clangd")
+vim.lsp.enable("roslyn_ls")
+vim.lsp.enable("lua_ls")
+-- DIAGNOSTICS
+vim.diagnostic.config({
+  virtual_text = true,
+  underline = true,
+  signs = true,
+  severity_sort = true,
 
-    automatic_installation = true,
-  })
-  -- LSP
-  vim.lsp.enable("clangd")
-  vim.lsp.enable("roslyn_ls")
-  vim.lsp.enable("lua_ls")
-  -- DIAGNOSTICS
-  vim.diagnostic.config({
-    virtual_text = true,
-    underline = true,
-    signs = true,
-    severity_sort = true,
-
-    float = {
-      border = "rounded",
-    },
-  })
+  float = {
+    border = "rounded",
+  },
+})
 
 --=============================================================================
 -- GITSIGNS
@@ -251,24 +262,24 @@ require("gitsigns").setup()
 -- REMAPS
 --=============================================================================
 local keymap = vim.keymap
-keymap.set( "n", "Y", "yy", { desc = "Yank line with Y" })
-keymap.set( "v", "J", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
-keymap.set( "v", "K", ":m '>-2<CR>gv=gv", { desc = "Move selection up" })
-keymap.set( "n", "<C-u>", "<C-u>zz", { desc = "Half page up without moving cursor" })
-keymap.set( "n", "<C-d>", "<C-d>zz", { desc = "Half page down without moving cursor" })
-keymap.set( "n", "n", "nzzzv", { desc = "Next search result without moving cursor" })
-keymap.set( "n", "N", "Nzzzv", { desc = "Previous search result without moving cursor" })
-keymap.set( "n", "<leader>nh", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
+keymap.set("n", "Y", "yy", { desc = "Yank line with Y" })
+keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
+keymap.set("v", "K", ":m '>-2<CR>gv=gv", { desc = "Move selection up" })
+keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Half page up without moving cursor" })
+keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Half page down without moving cursor" })
+keymap.set("n", "n", "nzzzv", { desc = "Next search result without moving cursor" })
+keymap.set("n", "N", "Nzzzv", { desc = "Previous search result without moving cursor" })
+keymap.set("n", "<leader>nh", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
 
 --=============================================================================
 -- BUILT-IN LSP KEYMAPS
 --=============================================================================
-keymap.set( "n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
-keymap.set( "n", "gD", vim.lsp.buf.declaration, { desc = "Go to declaration" })
-keymap.set( "n", "gs", vim.lsp.buf.document_symbol, { desc = "Document symbols" })
-keymap.set( "n", "<leader>f", function() vim.lsp.buf.format({ async = true }) end, { desc = "Format" })
-keymap.set( "n", "<leader>ws", vim.lsp.buf.workspace_symbol, { desc = "Workspace symbols" })
-keymap.set( "n", "<leader>da", vim.diagnostic.setqflist, { desc = "Diagnostics to quickfix" })
+keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
+keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "Go to declaration" })
+keymap.set("n", "gs", vim.lsp.buf.document_symbol, { desc = "Document symbols" })
+keymap.set("n", "<leader>f", function() vim.lsp.buf.format({ async = true }) end, { desc = "Format" })
+keymap.set("n", "<leader>ws", vim.lsp.buf.workspace_symbol, { desc = "Workspace symbols" })
+keymap.set("n", "<leader>da", vim.diagnostic.setqflist, { desc = "Diagnostics to quickfix" })
 
 --[[######################################################
 DEFAULTS (see `:h lsp-defaults`)
@@ -311,15 +322,12 @@ These diagnostic keymaps are created unconditionally when Nvim starts:
 --=============================================================================
 -- LAZYGIT
 --=============================================================================
-keymap.set( "n", "<leader>gg", "<cmd>LazyGit<CR>", { desc = "LazyGit" })
+keymap.set("n", "<leader>gg", "<cmd>LazyGit<CR>", { desc = "LazyGit" })
 
 --=============================================================================
 -- STARTUP
 --=============================================================================
 print("init.lua loaded!")
-
-
-
 
 -- opt.shell = "pwsh.exe" -- sadness
 -- -- remember `<leader>nh` stopping at `<leader>n`?

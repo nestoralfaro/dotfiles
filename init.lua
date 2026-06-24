@@ -153,7 +153,12 @@ vim.cmd([[autocmd BufEnter * set formatoptions-=cro]])                 -- no aut
 vim.g.netrw_bufsettings =
 "nomodifiable nomed number relativenumber nobuflisted nowrap readonly" -- magical spell for relative line numbers in netrw
 opt.clipboard:append("unnamedplus")                                    -- use system clipboard as default register (i.e., adios `"+` or `"*`)
-
+-- auto reload file if modified elsewhere
+vim.opt.autoread = true
+vim.api.nvim_create_autocmd(
+  { "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" },
+  { command = "checktime" }
+)
 
 --=============================================================================
 -- PLUGIN Config

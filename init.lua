@@ -202,18 +202,35 @@ require("blink.cmp").setup({
   signature = { enabled = true, },
   
 })
--- requires Zed ACP adapter for Claude Code
 require("codecompanion").setup({
   adapters = {
-    acp = {
-      claude_code = function()
-        return require("codecompanion.adapters").extend("claude_code", {
-          env = {
-            CLAUDE_CODE_OAUTH_TOKEN = "my-oauth-token",
-          },
-        })
-      end,
+    ollama = function()
+      -- ollama pull qwen2.5-coder:3b
+      return require("codecompanion.adapters").extend("ollama", {
+        name = "ollama",
+        schema = {
+          model = {
+            default = "qwen2.5-coder:3b",
+          }
+        },
+      })
+    end,
+  },
+
+  strategies = {
+    chat = {
+      adapter = "ollama",
     },
+    inline = {
+      adapter = "ollama",
+    },
+    agent = {
+      adapter = "ollama",
+    },
+  },
+
+  opts = {
+    log_level = "DEBUG",
   },
 })
 -- Autoclosing

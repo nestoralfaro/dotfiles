@@ -16,4 +16,5 @@ source <(fzf --zsh)
 # syntax highlighting; should be last
 source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh # macos
 # source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh # redhat (linux)
-source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh # requires `install zsh-autosuggestions`
+source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh # (brew|apt|emerge) install zsh-autosuggestions
+bindkey '^ ' autosuggest-accept

@@ -36,3 +36,4 @@ source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh #
 source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh # (brew|apt|emerge) install zsh-autosuggestions
 # source ~/.local/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh # gentoo: git clone https://github.com/zsh-users/zsh-autosuggestions.git
 bindkey '^ ' autosuggest-accept
+bindkey '^w' forward-word

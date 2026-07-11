@@ -129,8 +129,10 @@ local opt = vim.opt
 
 opt.relativenumber = true
 opt.number = true -- shows absolute line number on cursor line (when relative number is on)
-opt.wrap = false
-opt.linebreak = false
+opt.wrap = true -- visually wrap long lines
+opt.linebreak = true -- break only at word boundaries
+opt.breakindent = true -- match indent of the wrapped line to the original
+opt.showbreak = "| "
 opt.ignorecase = true   -- can be overriden by prefixing search with \C
 opt.smartcase = true    -- assume case-sensitive if search mixes case
 opt.termguicolors = true

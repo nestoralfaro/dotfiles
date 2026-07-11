@@ -129,10 +129,17 @@ local opt = vim.opt
 
 opt.relativenumber = true
 opt.number = true -- shows absolute line number on cursor line (when relative number is on)
+-- line wrapping
 opt.wrap = true -- visually wrap long lines
 opt.linebreak = true -- break only at word boundaries
 opt.breakindent = true -- match indent of the wrapped line to the original
 opt.showbreak = "| "
+
+-- folding
+opt.foldenable = true -- enable folding
+opt.foldmethod = "syntax" -- see common like: "expr", "indent", "syntax", or "marker"
+opt.foldlevel = 99 -- start with everything unfolded
+
 opt.ignorecase = true   -- can be overriden by prefixing search with \C
 opt.smartcase = true    -- assume case-sensitive if search mixes case
 opt.termguicolors = true
@@ -182,7 +189,7 @@ require("lualine").setup({
   sections = {
     lualine_a = { "mode" },
     lualine_b = { "branch", "diff", "diagnostics" },
-    lualine_c = { "filename" },
+    lualine_c = {{ "filename", path = 2 }},
     lualine_x = { "encoding", "fileformat", "filetype" },
     lualine_y = { "progress" },
     lualine_z = { "location" },

@@ -66,11 +66,18 @@ require("lazy").setup({
     { "nvim-tree/nvim-web-devicons", },                                                                             -- icons
     { "nvim-lualine/lualine.nvim",           dependencies = { "nvim-tree/nvim-web-devicons", }, },                  -- status line
     { "lukas-reineke/indent-blankline.nvim", main = "ibl",                                      opts = {} },
+    {
+        'MeanderingProgrammer/render-markdown.nvim',
+        dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' },
+        ---@module 'render-markdown'
+        ---@type render.md.UserConfig
+        opts = {},
+    },                                                                                      -- render-markdown.nvim
 
     ---------------------------------------------------------------------------
     -- LSP Misc
     ---------------------------------------------------------------------------
-    { "nvim-telescope/telescope.nvim",       dependencies = { "nvim-lua/plenary.nvim", }, }, -- telescope. Thanks TJ
+    { "nvim-telescope/telescope.nvim",       dependencies = { "nvim-lua/plenary.nvim", }, },
     { 'nvim-treesitter/nvim-treesitter',     lazy = false,                                      build = ':TSUpdate' },
     { "mason-org/mason.nvim", },
     { "mason-org/mason-lspconfig.nvim", },
@@ -98,19 +105,6 @@ require("lazy").setup({
         },
       },
     },
-    {
-      "olimorris/codecompanion.nvim",
-      dependencies = {
-        "nvim-lua/plenary.nvim",
-        "nvim-treesitter/nvim-treesitter",
-      },
-      opts = {
-        -- NOTE: The log_level is in `opts.opts`
-        opts = {
-          log_level = "DEBUG", -- or "TRACE"
-        },
-      },
-    },
 
     ---------------------------------------------------------------------------
     -- Git
@@ -134,10 +128,10 @@ opt.wrap = true -- visually wrap long lines
 opt.linebreak = true -- break only at word boundaries
 opt.breakindent = true -- match indent of the wrapped line to the original
 opt.showbreak = "| "
-
 -- folding
 opt.foldenable = true -- enable folding
-opt.foldmethod = "syntax" -- see common like: "expr", "indent", "syntax", or "marker"
+opt.foldmethod = "expr" -- see common like: "expr", "indent", "syntax", or "marker"
+opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 opt.foldlevel = 99 -- start with everything unfolded
 
 opt.ignorecase = true   -- can be overriden by prefixing search with \C
@@ -161,9 +155,25 @@ opt.completeopt = { "menu", "menuone", "popup", "fuzzy" }              -- see :h
 vim.cmd([[autocmd BufEnter * set formatoptions-=cro]])                 -- no auto commenting
 vim.g.netrw_bufsettings =
 "nomodifiable nomed number relativenumber nobuflisted nowrap readonly" -- magical spell for relative line numbers in netrw
+
+-- handy yankin
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "netrw",
+  callback = function()
+    vim.keymap.set("n", "<leader>y", function()
+      local path = vim.b.netrw_curdir
+      if path then
+        vim.fn.setreg("+", path)
+        vim.notify("Copied: " .. path)
+      end
+    end, { buffer = true, desc = "Copy full path to clipboard" })
+  end,
+})
+
 opt.clipboard:append("unnamedplus")                                    -- use system clipboard as default register (i.e., adios `"+` or `"*`)
 -- auto reload file if modified elsewhere
-vim.opt.autoread = true
+
+opt.autoread = true
 vim.api.nvim_create_autocmd(
   { "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" },
   { command = "checktime" }
@@ -216,63 +226,17 @@ require("blink.cmp").setup({
   signature = { enabled = true, },
   
 })
-require("codecompanion").setup({
-  adapters = {
-    ollama = function()
-      -- ollama pull qwen2.5-coder:3b
-      return require("codecompanion.adapters").extend("ollama", {
-        name = "ollama",
-        schema = {
-          model = {
-            default = "qwen2.5-coder:3b",
-          }
-        },
-      })
-    end,
-  },
-
-  strategies = {
-    chat = {
-      adapter = "ollama",
-    },
-    inline = {
-      adapter = "ollama",
-    },
-    agent = {
-      adapter = "ollama",
-    },
-  },
-
-  opts = {
-    log_level = "DEBUG",
-  },
-})
 -- Autoclosing
 require("nvim-ts-autotag").setup()
 require("nvim-autopairs").setup()
 -- Treesitter
-require("nvim-treesitter").setup({
-  ensure_installed = {
-    "c",
-    "cpp",
-    "c_sharp",
-    "lua",
-    "vim",
-    "vimdoc",
-    "query",
-    "html",
-    "css",
-    "javascript",
-    "typescript",
-    "tsx",
-    "json",
-    "markdown",
-  },
-
-  highlight = { enable = true, },
-  indent = { enable = true, },
+vim.api.nvim_create_autocmd("FileType", {
+  callback = function()
+    pcall(vim.treesitter.start)
+    vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+  end,
 })
--- TELESCOPE
+-- Telescope
 local telescope = require("telescope.builtin")
 vim.keymap.set("n", "<leader>ff", telescope.find_files, { desc = "Find files" })
 vim.keymap.set("n", "<leader>fo", telescope.oldfiles, { desc = "Find in recent files" })
@@ -328,6 +292,14 @@ keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Half page down without moving curs
 keymap.set("n", "n", "nzzzv", { desc = "Next search result without moving cursor" })
 keymap.set("n", "N", "Nzzzv", { desc = "Previous search result without moving cursor" })
 keymap.set("n", "<leader>nh", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
+keymap.set("n", "<leader>e", "<cmd>Ex<CR>", { desc = "Open netrw" })
+keymap.set("n", "<leader>y", function()
+  local path = vim.fn.expand("%:p")
+  if path and path ~= "" then
+    vim.fn.setreg("+", path)
+    vim.notify("Copied: " .. path)
+  end
+end, { desc = "Copy current file path to clipboard" })
 
 --=============================================================================
 -- BUILT-IN LSP KEYMAPS
